@@ -1,61 +1,78 @@
 # VendorConnect 🏢
 
-**Modern Enterprise Procurement Dashboard** replacing legacy Excel trackers with a centralized, data-driven system.
+![Status](https://img.shields.io/badge/Status-Production-emerald)
+![Tech](https://img.shields.io/badge/Stack-React_|_Supabase_|_Tailwind-blue)
+![Focus](https://img.shields.io/badge/Focus-Procurement_SaaS-purple)
 
-🚀 **Live Demo:** [Insert Your Vercel Link Here]  
-*(Login with: `demo@procol.in` / `password123` or create a new account)*
+**A modern Enterprise Procurement OS designed to replace legacy Excel trackers with a secure, data-driven vendor management system.**
+
+🚀 **Live Demo:** [**View Live Dashboard**](vendor-connect-five.vercel.app)  
+*(Test Credentials: `demo@procol.in` / `password123`)*
 
 ---
 
 ## 📖 Overview
 
-VendorConnect is a B2B SaaS application designed to streamline vendor management and contract lifecycles. It solves the critical business problem of **"Cost Leakage"** by automatically tracking contract expiry dates and flagging compliance risks in real-time.
+**VendorConnect** is a B2B SaaS application engineered to solve the "Cost Leakage" problem in enterprise procurement. By digitizing vendor data and automating contract tracking, it prevents unwanted auto-renewals and compliance lapses that often occur with manual Excel-based tracking.
 
-Built with **React.js** and **Supabase**, it features a secure multi-tenant architecture where organizations can manage their specific vendors in isolation.
+It features a **multi-tenant architecture** secured by **Row Level Security (RLS)**, ensuring that data is strictly isolated between different procurement officers or organizations.
+
+---
 
 ## ✨ Key Features
 
-### 🧠 Smart Contracts Engine
-- **Automated Risk Alerts:** Automatically flags contracts expiring within 30 days to prevent auto-renewals or lapses.
-- **Visual Indicators:** Red/Yellow status badges for immediate attention.
+### 🧠 The Contracts Engine (Business Logic)
+- **Automated Risk Alerts:** Algorithms continually scan contract end-dates against the current date.
+- **Cost Leakage Prevention:** Automatically flags contracts expiring within **30 days** (Red Alert), allowing teams to renegotiate or cancel in time.
 
-### 🛡️ Secure Vendor Management
-- **Multi-Tenancy:** Uses Supabase **Row Level Security (RLS)** to ensure users only see their own data.
-- **Compliance Tracking:** "Report Vendor" feature allows procurement officers to flag non-compliant vendors instantly.
-- **Real-Time Search:** Client-side fuzzy search for instant vendor lookup.
+### 🛡️ Enterprise-Grade Security
+- **Multi-Tenancy:** Built on Supabase Auth & RLS. Users can only access and manipulate their *own* vendor data.
+- **Compliance Tracking:** Integrated "Report Vendor" workflow to flag non-compliant suppliers instantly.
 
 ### 📊 Executive Dashboard
-- **KPI Metrics:** Real-time calculation of Total Spend, Active Contracts, and Compliance Rates.
-- **Interactive Charts:** Visual breakdown of vendor categories and spend analysis.
+- **Real-Time KPIs:** Dynamic calculation of *Total Spend*, *Active Contracts*, and *Compliance Rates*.
+- **Instant Search:** Client-side fuzzy search to filter hundreds of vendors in milliseconds, reducing lookup time by ~40%.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** React.js (Vite), Tailwind CSS
-- **Backend/DB:** Supabase (PostgreSQL, Auth, RLS)
-- **Icons:** Lucide React
-- **Deployment:** Vercel
+| Component | Technology | Use Case |
+| :--- | :--- | :--- |
+| **Frontend** | React.js (Vite) | High-performance SPA architecture |
+| **Styling** | Tailwind CSS | Modern, responsive, utility-first design |
+| **Backend** | Supabase (PostgreSQL) | Relational database & API generation |
+| **Auth** | Supabase Auth | Secure email/password authentication |
+| **Security** | Row Level Security (RLS) | Database-level data isolation policies |
+| **Deployment** | Vercel | CI/CD pipeline & edge network hosting |
 
 ---
 
-## 🚀 Getting Started
+## 📸 Screenshots
+
+*(Add screenshots of your Dashboard and Login screen here)*
+
+---
+
+## 🚀 Local Setup Guide
+
+Follow these steps to run the project locally.
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/yourusername/vendor-connect.git](https://github.com/yourusername/vendor-connect.git)
+git clone [https://github.com/your-username/vendor-connect.git](https://github.com/your-username/vendor-connect.git)
 cd vendor-connect
 2. Install Dependencies
 Bash
 npm install
-3. Environment Setup
-Create a .env file in the root directory and add your Supabase keys:
+3. Configure Environment
+Create a .env file in the root directory and add your Supabase credentials:
 
 Code snippet
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_KEY=your_supabase_anon_key
-4. Database Schema
-Run the following SQL in your Supabase SQL Editor to set up tables and security policies:
+VITE_SUPABASE_URL=your_project_url
+VITE_SUPABASE_KEY=your_anon_key
+4. Database Setup
+Run the following SQL in your Supabase SQL Editor to initialize the schema and security policies:
 
 SQL
 -- Create Tables
@@ -64,7 +81,7 @@ create table vendors (
   user_id uuid references auth.users(id) default auth.uid(),
   name text not null,
   category text,
-  compliance_status text,
+  compliance_status text default 'compliant',
   total_spend numeric,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
@@ -74,7 +91,6 @@ create table contracts (
   user_id uuid references auth.users(id) default auth.uid(),
   vendor_id bigint references vendors(id),
   contract_name text,
-  start_date date,
   end_date date,
   value numeric
 );
@@ -83,22 +99,19 @@ create table contracts (
 alter table vendors enable row level security;
 alter table contracts enable row level security;
 
--- Create Policies
-create policy "Users can only see their own vendors" on vendors for select using (auth.uid() = user_id);
-create policy "Users can only insert their own vendors" on vendors for insert with check (auth.uid() = user_id);
-create policy "Users can only update their own vendors" on vendors for update using (auth.uid() = user_id);
--- (Repeat policies for contracts table)
-5. Run Locally
+-- Create Isolation Policies
+create policy "View own data" on vendors for select using (auth.uid() = user_id);
+create policy "Add own data" on vendors for insert with check (auth.uid() = user_id);
+-- (Policies repeated for contracts)
+5. Run the App
 Bash
 npm run dev
-💡 Why this project?
-This project demonstrates Product Thinking by addressing specific procurement pain points:
+💡 Engineering Decisions
+Why Supabase? To leverage PostgreSQL's relational capabilities for linking Vendors to Contracts while using built-in RLS for security, mimicking a real production SaaS environment.
 
-Data Isolation: Implemented via RLS for enterprise-grade security.
+Why Client-Side Filtering? For lists under 1000 items, client-side filtering offers a near-zero latency experience ("snappy feel") compared to repeated API calls.
 
-Operational Efficiency: Reduces vendor lookup time by ~40% vs Excel.
-
-Financial Control: Prevents unwanted contract renewals via the Alert Engine.
+Business Focus: The UI prioritizes "Risk" (Red Alerts) over general data, reflecting a product-mindset focused on saving the user money.
 
 Author: Aryan Gupta
 

@@ -6,7 +6,7 @@
 
 **A modern Enterprise Procurement OS designed to replace legacy Excel trackers with a secure, data-driven vendor management system.**
 
-🚀 **Live Demo:** [**View Live Dashboard**](vendor-connect-five.vercel.app)  
+🚀 **Live Demo:** [**View Live Dashboard**](https://vendor-connect-five.vercel.app/)  
 *(Test Credentials: `demo@procol.in` / `password123`)*
 
 ---
